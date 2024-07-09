@@ -1,0 +1,1 @@
+Folder secret adalah folder yang dapat menyimpan seluruh informasi rahasia!

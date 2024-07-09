@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int            @id @default(autoincrement())
+  email        String         @unique @db.VarChar(100)
+  name         String         @db.VarChar(100)
+  password     String         @db.VarChar(255)
+  phone        String         @db.VarChar(20)
+  token        String?        @db.VarChar(500)
+  otp          String?        @db.VarChar(6)
+  active       Boolean        @default(false)
+  role         Role           @default(user)
+  presence     Presence[]
+  laporan      Laporan[]
+  notification Notification[]
+}
+
+enum Role {
+  admin
+  user
+}
+
+model Presence {
+  id     Int            @id @default(autoincrement())
+  time   DateTime
+  status PresenceStatus
+  photo  String         @db.VarChar(500)
+  lat    String         @db.VarChar(100)
+  long   String         @db.VarChar(100)
+  userId Int
+  user   User           @relation(fields: [userId], references: [id])
+}
+
+enum PresenceStatus {
+  masuk
+  keluar
+}
+
+model Laporan {
+  id          Int    @id @default(autoincrement())
+  title       String @db.VarChar(255)
+  description String @db.Text
+  userId      Int
+  user        User   @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  description String   @db.Text
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  userId      Int?
+  User        User?    @relation(fields: [userId], references: [id])
+}
