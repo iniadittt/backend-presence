@@ -89,4 +89,6 @@ app.get('/api/notifications', authentication, async (request: any, response: Res
     }
 });
 
+app.all('*', (request: Request, response: Response) => responseJson(response, 404, 'Not found', 'Not found'))
+
 app.listen(port, () => console.log(`[SERVER] running at http://localhost:${port}`));
