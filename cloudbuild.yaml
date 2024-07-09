@@ -15,7 +15,7 @@ steps:
       - 'deploy'
       - 'backend-presence'
       - '--image=asia-southeast2-docker.pkg.dev/$PROJECT_ID/bjir-artifact/presence:$COMMIT_SHA'
-      - '--region=asia-southeast2'
+      - '--region=us-central1'
       - '--cpu=2'
       - '--memory=4096Mi'
       - '--min-instances=0'
