@@ -15,6 +15,7 @@ export const authRouter: Router = express
 
 export const userRouter: Router = express
     .Router()
+    .get('/users', authentication, userController.getUsers)
     .get('/me', authentication, userController.getMyProfile)
     .put('/me', authentication, validation(updateProfileSchema), userController.updateMyProfile)
     .put('/me/password', authentication, validation(updatePasswordSchema), userController.updateMyPassword)

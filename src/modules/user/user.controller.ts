@@ -133,4 +133,16 @@ export default class UserController {
             return responseError(response, 500, 'Internal server error', 'Terjadi kesalahan pada server', error.message);
         }
     }
+
+    async getUsers(request: any, response: Response) {
+        try {
+            const user: User | undefined = request.user;
+            if (!user || user.role !== 'admin') return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
+            const users: User[] | [] = await prisma.user.findMany();
+            if (users.length === 0) return responseJson(response, 404, 'Not found', 'Data user tidak ditemukan');
+            return responseJson(response, 200, 'Success', 'Get data users berhasil', { users });
+        } catch (error: any) {
+            return responseError(response, 500, 'Internal server error', 'Terjadi kesalahan pada server', error.message);
+        }
+    }
 }
