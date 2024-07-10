@@ -238,6 +238,7 @@ export default class UserController {
             if (!id) return responseJson(response, 400, 'Bad request', 'ID user tidak valid');
             const checkEmailUsed: User | null = await prisma.user.findUnique({ where: { id } });
             if (!checkEmailUsed) return responseJson(response, 400, 'Bad request', 'User tidak ada');
+            if (checkEmailUsed.role === 'admin') return responseJson(response, 400, 'Bad request', 'User admin tidak bisa dihapus');
             const deleteUser: User = await prisma.user.delete({ where: { id } });
             if (!deleteUser) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server');
             return responseJson(response, 200, 'Success', `Delete data users dengan email ${deleteUser.email} berhasil`);
