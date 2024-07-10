@@ -92,6 +92,7 @@ export default class UserController {
     async getMyProfile(request: any, response: Response) {
         try {
             const user: User | undefined = request.user;
+            console.log({ user })
             if (!user) return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
             return responseJson(response, 200, 'Success', 'Berhasil mengambil data profile', { user: { email: user.email, name: user.name, phone: user.phone, role: user.role } });
         } catch (error: any) {

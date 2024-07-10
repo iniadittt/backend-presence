@@ -16,12 +16,13 @@ export const authRouter: Router = express
 export const userRouter: Router = express
     .Router()
     .get('/', authentication, userController.getUsers)
-    .get('/:id', authentication, userController.getUser)
-    .post('/', authentication, validation(addUserSchema), userController.addUser)
-    .put('/:id', authentication, validation(updateUserSchema), userController.updateUser)
-    .put('/:id', authentication, validation(updatePasswordUserSchema), userController.updatePasswordUser)
-    .delete('/:id', authentication, userController.deleteUser)
     .get('/me', authentication, userController.getMyProfile)
     .put('/me', authentication, validation(updateProfileSchema), userController.updateMyProfile)
     .put('/me/password', authentication, validation(updatePasswordSchema), userController.updateMyPassword)
+    .post('/', authentication, validation(addUserSchema), userController.addUser)
+    .get('/:id', authentication, userController.getUser)
+    .put('/:id', authentication, validation(updateUserSchema), userController.updateUser)
+    .put('/:id', authentication, validation(updatePasswordUserSchema), userController.updatePasswordUser)
+    .delete('/:id', authentication, userController.deleteUser)
+
 
