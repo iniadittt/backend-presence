@@ -1,3 +1,5 @@
+import { Role } from "@prisma/client";
+
 export interface RegisterBody {
     email: string;
     password: string;
@@ -19,8 +21,29 @@ export interface UpdateProfileBody {
     name?: string;
     phone?: string;
 }
+
 export interface updatePasswordBody {
     passwordLama: string;
     passwordBaru: string;
     konfirmasiPasswordBaru: string;
+}
+
+export interface AddUserBody {
+    email: string;
+    name: string;
+    password: string;
+    phone: string;
+    role: Role
+}
+
+export interface UpdateUserBody {
+    email?: string;
+    name?: string;
+    phone?: string;
+    role?: Role
+}
+
+export interface UpdatePasswordUserBody {
+    password: string
+    konfirmasiPassword: string
 }

@@ -37,3 +37,28 @@ export const updatePasswordSchema = z.object({
     passwordBaru: z.string().min(8),
     konfirmasiPasswordBaru: z.string().min(8),
 })
+
+export const addUserSchema = z.object({
+    email: z.string().email().min(8).max(100),
+    name: z.string().min(6).max(100),
+    password: z.string().min(8),
+    phone: z.string().min(10).max(20).regex(indonesianPhoneRegex, {
+        message: "Phone number must be a valid Indonesian number"
+    }),
+    role: z.enum(['admin', 'user'])
+})
+
+export const updateUserSchema = z.object({
+    email: z.string().email().min(8).max(100).optional(),
+    name: z.string().min(6).max(100).optional(),
+    phone: z.string().min(10).max(20).regex(indonesianPhoneRegex, {
+        message: "Phone number must be a valid Indonesian number"
+    }).optional(),
+    role: z.enum(['admin', 'user']).optional()
+})
+
+
+export const updatePasswordUserSchema = z.object({
+    password: z.string().min(8),
+    konfirmasiPassword: z.string().min(8),
+})
