@@ -140,7 +140,12 @@ export default class UserController {
             if (!user || user.role !== 'admin') return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
             const users: User[] | [] = await prisma.user.findMany();
             if (users.length === 0) return responseJson(response, 404, 'Not found', 'Data user tidak ditemukan');
-            return responseJson(response, 200, 'Success', 'Get data users berhasil', { users });
+            return responseJson(response, 200, 'Success', 'Get data users berhasil', {
+                users: users.map((user: User) => {
+                    const { password, ...data } = user
+                    return data
+                })
+            });
         } catch (error: any) {
             return responseError(response, 500, 'Internal server error', 'Terjadi kesalahan pada server', error.message);
         }
@@ -153,8 +158,9 @@ export default class UserController {
             const id: number = parseInt(request.params.id as string);
             if (!id) return responseJson(response, 400, 'Bad request', 'ID user tidak valid');
             const users: User | null = await prisma.user.findUnique({ where: { id } });
-            if (!user) return responseJson(response, 404, 'Not found', 'Data user tidak ditemukan');
-            return responseJson(response, 200, 'Success', 'Get data users berhasil', { user: users });
+            if (!users) return responseJson(response, 404, 'Not found', 'Data user tidak ditemukan');
+            const { password, ...data } = users
+            return responseJson(response, 200, 'Success', 'Get data users berhasil', { user: data });
         } catch (error: any) {
             return responseError(response, 500, 'Internal server error', 'Terjadi kesalahan pada server', error.message);
         }
