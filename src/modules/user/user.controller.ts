@@ -5,7 +5,7 @@ import prisma from '../../common/prismaclient';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import sendEmail from '../../libs/nodemailer';
-import { User, Notification } from '@prisma/client';
+import { User, Notification, Role } from '@prisma/client';
 import { RegisterBody, LoginBody, UpdateProfileBody, updatePasswordBody, VerifyBody, AddUserBody, UpdateUserBody, UpdatePasswordUserBody } from './user.interface';
 import { registerHtml } from '../../libs/register.html';
 import { generateRandomNumber } from '../../libs/generateRandomNumber';
@@ -33,11 +33,40 @@ export default class UserController {
         }
     }
 
+    async loginAdmin(request: Request, response: Response) {
+        try {
+            const { email, password }: LoginBody = request.body;
+            const user: User | null = await prisma.user.findUnique({ where: { email, active: true } });
+            if (!user) return responseJson(response, 400, 'Bad request', 'Email atau password salah');
+            if (user.role !== Role.admin) return responseJson(response, 400, 'Bad request', 'Email atau password salah');
+            const matchPassword: boolean = bcrypt.compareSync(password, user.password);
+            if (!matchPassword) return responseJson(response, 400, 'Bad request', 'Email atau password salah');
+            const token: string = jwt.sign({ email: user.email }, environment.jwt.secret as string, { expiresIn: environment.jwt.expiresIn });
+            const updateToken: User = await prisma.user.update({ where: { id: user.id }, data: { token } });
+            if (!updateToken) return responseJson(response, 500, 'Internal server error', 'Login gagal');
+            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.login.title, description: dataNotification.user.login.description, userId: user.id } })
+            if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
+            return responseJson(response, 200, 'Success', 'Login berhasil', { token });
+        } catch (error: any) {
+            return responseError(response, 500, 'Internal server error', 'Terjadi kesalahan pada server', error.message);
+        }
+    }
+
     async register(request: Request, response: Response) {
         try {
             const { email, password, name, phone }: RegisterBody = request.body;
             const user: User | null = await prisma.user.findUnique({ where: { email } });
-            if (user) return responseJson(response, 409, 'Conflict', 'Email sudah digunakan');
+            if (user && user.active) return responseJson(response, 409, 'Conflict', 'Email sudah digunakan')
+            if (user && !user.active) {
+                const randomNumber: number = generateRandomNumber(6)
+                const html: string = registerHtml(randomNumber)
+                await sendEmail(email, 'Presence - Verify Your Account', html)
+                const updateOtp: User = await prisma.user.update({ where: { id: user.id }, data: { otp: `${randomNumber}` } });
+                if (!updateOtp) return responseJson(response, 500, 'Internal server error', 'Register gagal');
+                const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.register.title, description: dataNotification.user.register.description, userId: user.id } })
+                if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
+                return responseJson(response, 200, 'Success', 'Register berhasil');
+            }
             const hashPassword: string = bcrypt.hashSync(password, 10);
             const createdUser: User | null = await prisma.user.create({ data: { email, password: hashPassword, name, phone } });
             if (!createdUser) return responseJson(response, 500, 'Internal server error', 'Register gagal');
@@ -92,7 +121,6 @@ export default class UserController {
     async getMyProfile(request: any, response: Response) {
         try {
             const user: User | undefined = request.user;
-            console.log({ user })
             if (!user) return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
             return responseJson(response, 200, 'Success', 'Berhasil mengambil data profile', { user: { email: user.email, name: user.name, phone: user.phone, role: user.role } });
         } catch (error: any) {
@@ -173,9 +201,9 @@ export default class UserController {
             if (!user || user.role !== 'admin') return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
             const { email, name, password, phone, role }: AddUserBody = request.body
             const checkEmailUsed: User | null = await prisma.user.findUnique({ where: { email } });
-            if (!checkEmailUsed) return responseJson(response, 400, 'Bad request', 'Email sudah digunakan');
+            if (checkEmailUsed) return responseJson(response, 400, 'Bad request', 'Email sudah digunakan');
             const hashPassword: string = bcrypt.hashSync(password, 10);
-            const addUser: User | null = await prisma.user.create({ data: { email, name, password: hashPassword, phone, role } });
+            const addUser: User | null = await prisma.user.create({ data: { email, name, password: hashPassword, phone, role, active: true } });
             if (!addUser) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server');
             return responseJson(response, 200, 'Success', 'Tambah data users berhasil');
         } catch (error: any) {
@@ -189,15 +217,15 @@ export default class UserController {
             if (!user || user.role !== 'admin') return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
             const id: number = parseInt(request.params.id as string);
             if (!id) return responseJson(response, 400, 'Bad request', 'ID user tidak valid');
-            const { email, name, phone, role }: UpdateUserBody = request.body
-            const checkEmailUsed: User | null = await prisma.user.findUnique({ where: { email } });
-            if (!checkEmailUsed) return responseJson(response, 400, 'Bad request', 'User tidak ada');
+            const { name, phone, role, active }: UpdateUserBody = request.body
+            const checkUser: User | null = await prisma.user.findUnique({ where: { id } });
+            if (!checkUser) return responseJson(response, 400, 'Bad request', 'User tidak ada');
             const updateUser: User | null = await prisma.user.update({
-                where: { id }, data: {
-                    email: email || checkEmailUsed.email,
-                    name: name || checkEmailUsed.name,
-                    phone: phone || checkEmailUsed.phone,
-                    role: role || checkEmailUsed.role,
+                where: { id: checkUser.id }, data: {
+                    name: name || checkUser.name,
+                    phone: phone || checkUser.phone,
+                    role: role || checkUser.role,
+                    active: active === 'true'
                 }
             });
             if (!updateUser) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server');
@@ -239,9 +267,14 @@ export default class UserController {
             const checkEmailUsed: User | null = await prisma.user.findUnique({ where: { id } });
             if (!checkEmailUsed) return responseJson(response, 400, 'Bad request', 'User tidak ada');
             if (checkEmailUsed.role === 'admin') return responseJson(response, 400, 'Bad request', 'User admin tidak bisa dihapus');
-            const deleteUser: User = await prisma.user.delete({ where: { id } });
+            const deleteUser = await prisma.$transaction([
+                prisma.presence.deleteMany({ where: { userId: id } }),
+                prisma.laporan.deleteMany({ where: { userId: id } }),
+                prisma.notification.deleteMany({ where: { userId: id } }),
+                prisma.user.delete({ where: { id } })
+            ]);
             if (!deleteUser) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server');
-            return responseJson(response, 200, 'Success', `Delete data users dengan email ${deleteUser.email} berhasil`);
+            return responseJson(response, 200, 'Success', `Delete data users dengan email ${checkEmailUsed.email} berhasil`);
         } catch (error: any) {
             return responseError(response, 500, 'Internal server error', 'Terjadi kesalahan pada server', error.message);
         }

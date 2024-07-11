@@ -4,7 +4,7 @@ export interface RegisterBody {
     email: string;
     password: string;
     name: string;
-    phone: string
+    phone: string;
 }
 
 export interface LoginBody {
@@ -14,7 +14,7 @@ export interface LoginBody {
 
 export interface VerifyBody {
     email: string;
-    otp: string
+    otp: string;
 }
 
 export interface UpdateProfileBody {
@@ -33,17 +33,17 @@ export interface AddUserBody {
     name: string;
     password: string;
     phone: string;
-    role: Role
+    role: Role;
 }
 
 export interface UpdateUserBody {
-    email?: string;
     name?: string;
     phone?: string;
-    role?: Role
+    role?: Role;
+    active?: string;
 }
 
 export interface UpdatePasswordUserBody {
-    password: string
-    konfirmasiPassword: string
+    password: string;
+    konfirmasiPassword: string;
 }

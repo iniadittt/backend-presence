@@ -49,12 +49,12 @@ export const addUserSchema = z.object({
 })
 
 export const updateUserSchema = z.object({
-    email: z.string().email().min(8).max(100).optional(),
     name: z.string().min(6).max(100).optional(),
     phone: z.string().min(10).max(20).regex(indonesianPhoneRegex, {
         message: "Phone number must be a valid Indonesian number"
     }).optional(),
-    role: z.enum(['admin', 'user']).optional()
+    role: z.enum(['admin', 'user']).optional(),
+    active: z.union([z.literal('true'), z.literal('false')])
 })
 
 

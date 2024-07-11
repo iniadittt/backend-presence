@@ -23,8 +23,8 @@ model User {
   otp          String?        @db.VarChar(6)
   active       Boolean        @default(false)
   role         Role           @default(user)
-  presence     Presence[]
-  laporan      Laporan[]
+  presence     Presence[]     
+  laporan      Laporan[]      
   notification Notification[]
 }
 
