@@ -122,7 +122,7 @@ export default class UserController {
         try {
             const user: User | undefined = request.user;
             if (!user) return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
-            return responseJson(response, 200, 'Success', 'Berhasil mengambil data profile', { user: { email: user.email, name: user.name, phone: user.phone, role: user.role } });
+            return responseJson(response, 200, 'Success', 'Berhasil mengambil data profile', { user: { id: user.id, email: user.email, name: user.name, phone: user.phone, role: user.role } });
         } catch (error: any) {
             return responseError(response, 500, 'Internal server error', 'Terjadi kesalahan pada server', error.message);
         }
