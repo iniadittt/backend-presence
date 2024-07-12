@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { responseJson, responseError } from '../../common/response';
 import prisma from '../../common/prismaclient';
 import { AddBody } from './presence.interface';
-import { Presence, PresenceStatus, Notification } from '@prisma/client';
+import { Presence, PresenceStatus, Notification, Role, User } from '@prisma/client';
 import { dataNotification } from '../../libs/dataNotification';
 
 export default class PresenceController {
@@ -15,6 +15,9 @@ export default class PresenceController {
             const presences: Presence[] | [] = await prisma.presence.findMany({
                 where: {
                     userId: id,
+                },
+                orderBy: {
+                    time: 'desc'
                 }
             });
             if (presences.length == 0) return responseJson(response, 404, 'Not found', 'Data presensi tidak ditemukan')
@@ -96,6 +99,30 @@ export default class PresenceController {
             const addNotification: Notification = await prisma.notification.create({ data: { title: status ? dataNotification.presence.add.masuk.title : dataNotification.presence.add.keluar.title, description: status ? dataNotification.presence.add.masuk.description : dataNotification.presence.add.keluar.description, userId: id } })
             if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
             return responseJson(response, 200, 'Success', `Presensi ${status} berhasil`);
+        } catch (error: any) {
+            return responseError(response, 500, 'Internal server error', 'Terjadi kesalahan pada server', error.message);
+        }
+    }
+
+    async getPresences(request: any, response: Response) {
+        try {
+            const user: User | undefined = request.user;
+            if (!user || user.role !== Role.admin) return responseJson(response, 403, 'Forbidden', 'User tidak memiliki akses')
+            const presences = await prisma.presence.findMany({
+                orderBy: {
+                    time: 'desc'
+                },
+                include: {
+                    user: true
+                }
+            });
+            if (presences.length == 0) return responseJson(response, 404, 'Not found', 'Data presensi tidak ditemukan')
+            return responseJson(response, 200, 'Success', 'Mengambil data presensi', {
+                presences: presences.map((presence) => {
+                    const { userId, user, ...data } = presence;
+                    return { ...data, user: { email: user.email, name: user.name, role: user.role } };
+                })
+            })
         } catch (error: any) {
             return responseError(response, 500, 'Internal server error', 'Terjadi kesalahan pada server', error.message);
         }

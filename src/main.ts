@@ -89,6 +89,36 @@ app.get('/api/notifications', authentication, async (request: any, response: Res
     }
 });
 
+app.get('/api/dashboard', async (request: Request, response: Response) => {
+    try {
+        const todayUTC: Date = new Date();
+        const currentUTCOffsetInMilliseconds = todayUTC.getTimezoneOffset() * 60 * 1000;
+        const utcPlus7OffsetInMilliseconds = 7 * 60 * 60 * 1000;
+        const todayInUTCPlus7: Date = new Date(todayUTC.getTime() + currentUTCOffsetInMilliseconds + utcPlus7OffsetInMilliseconds);
+        const startOfDay = new Date(todayInUTCPlus7.getFullYear(), todayInUTCPlus7.getMonth(), todayInUTCPlus7.getDate(), 0, 0, 0, 0)
+        const endOfDay = new Date(todayInUTCPlus7.getFullYear(), todayInUTCPlus7.getMonth(), todayInUTCPlus7.getDate(), 23, 59, 59, 999)
+        const [user, presence, laporan] = await Promise.all([
+            prisma.user.count(),
+            prisma.presence.count({
+                where: {
+                    time: {
+                        gte: startOfDay,
+                        lt: endOfDay
+                    }
+                }
+            }),
+            prisma.laporan.count(),
+        ]);
+        return responseJson(response, 200, 'Success', 'Mengambil data dashboard berhasil', {
+            user,
+            presence,
+            laporan,
+        });
+    } catch (error: any) {
+        return responseError(response, 500, 'Internal server error', 'Terjadi kesalahan pada server', error.message);
+    }
+});
+
 app.all('*', (request: Request, response: Response) => responseJson(response, 404, 'Not found', 'Not found'))
 
 app.listen(port, () => console.log(`[SERVER] running at http://localhost:${port}`));

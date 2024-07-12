@@ -12,3 +12,4 @@ export const presenceRouter: Router = express
     .get('/me', authentication, presenceController.getMyPresences)
     .get('/me/today', authentication, presenceController.getMyPresenceToday)
     .post('/', authentication, validation(addSchema), presenceController.add)
+    .get('/', authentication, presenceController.getPresences)

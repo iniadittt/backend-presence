@@ -166,7 +166,7 @@ export default class UserController {
     async getUsers(request: any, response: Response) {
         try {
             const user: User | undefined = request.user;
-            if (!user || user.role !== 'admin') return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
+            if (!user || user.role !== Role.admin) return responseJson(response, 403, 'Forbidden', 'User tidak memiliki akses');
             const users: User[] | [] = await prisma.user.findMany();
             if (users.length === 0) return responseJson(response, 404, 'Not found', 'Data user tidak ditemukan');
             return responseJson(response, 200, 'Success', 'Get data users berhasil', {
@@ -183,7 +183,7 @@ export default class UserController {
     async getUser(request: any, response: Response) {
         try {
             const user: User | undefined = request.user;
-            if (!user || user.role !== 'admin') return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
+            if (!user || user.role !== Role.admin) return responseJson(response, 403, 'Forbidden', 'User tidak memiliki akses');
             const id: number = parseInt(request.params.id as string);
             if (!id) return responseJson(response, 400, 'Bad request', 'ID user tidak valid');
             const users: User | null = await prisma.user.findUnique({ where: { id } });
@@ -198,7 +198,7 @@ export default class UserController {
     async addUser(request: any, response: Response) {
         try {
             const user: User | undefined = request.user;
-            if (!user || user.role !== 'admin') return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
+            if (!user || user.role !== Role.admin) return responseJson(response, 403, 'Forbidden', 'User tidak memiliki akses');
             const { email, name, password, phone, role }: AddUserBody = request.body
             const checkEmailUsed: User | null = await prisma.user.findUnique({ where: { email } });
             if (checkEmailUsed) return responseJson(response, 400, 'Bad request', 'Email sudah digunakan');
@@ -214,7 +214,7 @@ export default class UserController {
     async updateUser(request: any, response: Response) {
         try {
             const user: User | undefined = request.user;
-            if (!user || user.role !== 'admin') return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
+            if (!user || user.role !== Role.admin) return responseJson(response, 403, 'Forbidden', 'User tidak memiliki akses');
             const id: number = parseInt(request.params.id as string);
             if (!id) return responseJson(response, 400, 'Bad request', 'ID user tidak valid');
             const { name, phone, role, active }: UpdateUserBody = request.body
@@ -238,7 +238,7 @@ export default class UserController {
     async updatePasswordUser(request: any, response: Response) {
         try {
             const user: User | undefined = request.user;
-            if (!user || user.role !== 'admin') return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
+            if (!user || user.role !== Role.admin) return responseJson(response, 403, 'Forbidden', 'User tidak memiliki akses');
             const id: number = parseInt(request.params.id as string);
             if (!id) return responseJson(response, 400, 'Bad request', 'ID user tidak valid');
             const { password, konfirmasiPassword }: UpdatePasswordUserBody = request.body
@@ -261,12 +261,12 @@ export default class UserController {
     async deleteUser(request: any, response: Response) {
         try {
             const user: User | undefined = request.user;
-            if (!user || user.role !== 'admin') return responseJson(response, 400, 'Bad request', 'User tidak ditemukan');
+            if (!user || user.role !== Role.admin) return responseJson(response, 403, 'Forbidden', 'User tidak memiliki akses');
             const id: number = parseInt(request.params.id as string);
             if (!id) return responseJson(response, 400, 'Bad request', 'ID user tidak valid');
             const checkEmailUsed: User | null = await prisma.user.findUnique({ where: { id } });
             if (!checkEmailUsed) return responseJson(response, 400, 'Bad request', 'User tidak ada');
-            if (checkEmailUsed.role === 'admin') return responseJson(response, 400, 'Bad request', 'User admin tidak bisa dihapus');
+            if (checkEmailUsed.email === 'admin@presence.com') return responseJson(response, 400, 'Bad request', 'Super admin tidak bisa dihapus')
             const deleteUser = await prisma.$transaction([
                 prisma.presence.deleteMany({ where: { userId: id } }),
                 prisma.laporan.deleteMany({ where: { userId: id } }),

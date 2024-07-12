@@ -10,9 +10,16 @@ export default class LaporanController {
 
     async getAll(request: any, response: Response) {
         try {
-            const reports: Laporan[] | [] = await prisma.laporan.findMany()
+            const reports = await prisma.laporan.findMany({
+                include: { user: true }
+            })
             if (reports.length === 0) return responseJson(response, 404, 'Not Found', 'Data laporan tidak ada')
-            return responseJson(response, 200, 'Success', 'Mengambil data semua laporan berhasil', { reports });
+            return responseJson(response, 200, 'Success', 'Mengambil data semua laporan berhasil', {
+                reports: reports.map((report) => {
+                    const { userId, user, ...data } = report
+                    return { ...data, user: { email: user.email, name: user.name, role: user.role } }
+                })
+            });
         } catch (error: any) {
             return responseError(response, 500, 'Internal server error', 'Terjadi kesalahan pada server', error.message);
         }
