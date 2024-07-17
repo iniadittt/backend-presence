@@ -50,7 +50,11 @@ export default class LaporanController {
                 }
             })
             if (!createdReport) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
-            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.laporan.add.title, description: dataNotification.laporan.add.description, userId: id } })
+            const todayUTC: Date = new Date();
+            const currentUTCOffsetInMilliseconds = todayUTC.getTimezoneOffset() * 60 * 1000;
+            const utcPlus7OffsetInMilliseconds = 7 * 60 * 60 * 1000;
+            const todayInUTCPlus7: Date = new Date(todayUTC.getTime() + currentUTCOffsetInMilliseconds + utcPlus7OffsetInMilliseconds);
+            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.laporan.add.title, description: dataNotification.laporan.add.description, userId: id, createdAt: todayInUTCPlus7 } })
             if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
             return responseJson(response, 200, 'Success', 'Menyimpan data laporan berhasil');
         } catch (error: any) {
@@ -70,7 +74,11 @@ export default class LaporanController {
             if (!report) return responseJson(response, 404, 'Not Found', 'Data laporan tidak ada')
             const deleteReport: Laporan = await prisma.laporan.delete({ where: { id: parseInt(request.params.id) } })
             if (!deleteReport) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
-            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.laporan.delete.title, description: dataNotification.laporan.delete.description, userId: id } })
+            const todayUTC: Date = new Date();
+            const currentUTCOffsetInMilliseconds = todayUTC.getTimezoneOffset() * 60 * 1000;
+            const utcPlus7OffsetInMilliseconds = 7 * 60 * 60 * 1000;
+            const todayInUTCPlus7: Date = new Date(todayUTC.getTime() + currentUTCOffsetInMilliseconds + utcPlus7OffsetInMilliseconds);
+            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.laporan.delete.title, description: dataNotification.laporan.delete.description, userId: id, createdAt: todayInUTCPlus7 } })
             if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
             return responseJson(response, 200, 'Success', `Menghapus data laporan dengan id ${id} berhasil`);
         } catch (error: any) {

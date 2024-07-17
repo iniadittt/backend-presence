@@ -25,7 +25,11 @@ export default class UserController {
             const token: string = jwt.sign({ email: user.email }, environment.jwt.secret as string, { expiresIn: environment.jwt.expiresIn });
             const updateToken: User = await prisma.user.update({ where: { id: user.id }, data: { token } });
             if (!updateToken) return responseJson(response, 500, 'Internal server error', 'Login gagal');
-            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.login.title, description: dataNotification.user.login.description, userId: user.id } })
+            const todayUTC: Date = new Date();
+            const currentUTCOffsetInMilliseconds = todayUTC.getTimezoneOffset() * 60 * 1000;
+            const utcPlus7OffsetInMilliseconds = 7 * 60 * 60 * 1000;
+            const todayInUTCPlus7: Date = new Date(todayUTC.getTime() + currentUTCOffsetInMilliseconds + utcPlus7OffsetInMilliseconds);
+            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.login.title, description: dataNotification.user.login.description, userId: user.id, createdAt: todayInUTCPlus7 } })
             if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
             return responseJson(response, 200, 'Success', 'Login berhasil', { token });
         } catch (error: any) {
@@ -44,7 +48,11 @@ export default class UserController {
             const token: string = jwt.sign({ email: user.email }, environment.jwt.secret as string, { expiresIn: environment.jwt.expiresIn });
             const updateToken: User = await prisma.user.update({ where: { id: user.id }, data: { token } });
             if (!updateToken) return responseJson(response, 500, 'Internal server error', 'Login gagal');
-            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.login.title, description: dataNotification.user.login.description, userId: user.id } })
+            const todayUTC: Date = new Date();
+            const currentUTCOffsetInMilliseconds = todayUTC.getTimezoneOffset() * 60 * 1000;
+            const utcPlus7OffsetInMilliseconds = 7 * 60 * 60 * 1000;
+            const todayInUTCPlus7: Date = new Date(todayUTC.getTime() + currentUTCOffsetInMilliseconds + utcPlus7OffsetInMilliseconds);
+            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.login.title, description: dataNotification.user.login.description, userId: user.id, createdAt: todayInUTCPlus7 } })
             if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
             return responseJson(response, 200, 'Success', 'Login berhasil', { token });
         } catch (error: any) {
@@ -63,7 +71,11 @@ export default class UserController {
                 await sendEmail(email, 'Presence - Verify Your Account', html)
                 const updateOtp: User = await prisma.user.update({ where: { id: user.id }, data: { otp: `${randomNumber}` } });
                 if (!updateOtp) return responseJson(response, 500, 'Internal server error', 'Register gagal');
-                const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.register.title, description: dataNotification.user.register.description, userId: user.id } })
+                const todayUTC: Date = new Date();
+                const currentUTCOffsetInMilliseconds = todayUTC.getTimezoneOffset() * 60 * 1000;
+                const utcPlus7OffsetInMilliseconds = 7 * 60 * 60 * 1000;
+                const todayInUTCPlus7: Date = new Date(todayUTC.getTime() + currentUTCOffsetInMilliseconds + utcPlus7OffsetInMilliseconds);
+                const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.register.title, description: dataNotification.user.register.description, userId: user.id, createdAt: todayInUTCPlus7 } })
                 if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
                 return responseJson(response, 200, 'Success', 'Register berhasil');
             }
@@ -75,7 +87,11 @@ export default class UserController {
             await sendEmail(email, 'Presence - Verify Your Account', html)
             const updateOtp: User = await prisma.user.update({ where: { id: createdUser.id }, data: { otp: `${randomNumber}` } });
             if (!updateOtp) return responseJson(response, 500, 'Internal server error', 'Register gagal');
-            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.register.title, description: dataNotification.user.register.description, userId: createdUser.id } })
+            const todayUTC: Date = new Date();
+            const currentUTCOffsetInMilliseconds = todayUTC.getTimezoneOffset() * 60 * 1000;
+            const utcPlus7OffsetInMilliseconds = 7 * 60 * 60 * 1000;
+            const todayInUTCPlus7: Date = new Date(todayUTC.getTime() + currentUTCOffsetInMilliseconds + utcPlus7OffsetInMilliseconds);
+            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.register.title, description: dataNotification.user.register.description, userId: createdUser.id, createdAt: todayInUTCPlus7 } })
             if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
             return responseJson(response, 200, 'Success', 'Register berhasil');
         } catch (error: any) {
@@ -92,7 +108,11 @@ export default class UserController {
             if (!matchOtp) return responseJson(response, 400, 'Bad request', 'Kode OTP salah');
             const updateUser: User = await prisma.user.update({ where: { email: user.email }, data: { otp: null, active: true } });
             if (!updateUser) return responseJson(response, 500, 'Internal server error', 'Verifikasi akun gagal');
-            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.verify.title, description: dataNotification.user.verify.description, userId: user.id } })
+            const todayUTC: Date = new Date();
+            const currentUTCOffsetInMilliseconds = todayUTC.getTimezoneOffset() * 60 * 1000;
+            const utcPlus7OffsetInMilliseconds = 7 * 60 * 60 * 1000;
+            const todayInUTCPlus7: Date = new Date(todayUTC.getTime() + currentUTCOffsetInMilliseconds + utcPlus7OffsetInMilliseconds);
+            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.verify.title, description: dataNotification.user.verify.description, userId: user.id, createdAt: todayInUTCPlus7 } })
             if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
             return responseJson(response, 201, 'Created', 'Verifikasi akun berhasil');
         } catch (error: any) {
@@ -110,7 +130,11 @@ export default class UserController {
             await sendEmail(email, 'Presence - Verify Your Account', html)
             const updateOtp: User = await prisma.user.update({ where: { email, active: false }, data: { otp: `${randomNumber}` } });
             if (!updateOtp) return responseJson(response, 500, 'Internal server error', 'Get token gagal');
-            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.getOtp.title, description: dataNotification.user.getOtp.description, userId: user.id } })
+            const todayUTC: Date = new Date();
+            const currentUTCOffsetInMilliseconds = todayUTC.getTimezoneOffset() * 60 * 1000;
+            const utcPlus7OffsetInMilliseconds = 7 * 60 * 60 * 1000;
+            const todayInUTCPlus7: Date = new Date(todayUTC.getTime() + currentUTCOffsetInMilliseconds + utcPlus7OffsetInMilliseconds);
+            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.getOtp.title, description: dataNotification.user.getOtp.description, userId: user.id, createdAt: todayInUTCPlus7 } })
             if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
             return responseJson(response, 200, 'Success', 'Mengambil OTP baru berhasil');
         } catch (error: any) {
@@ -135,7 +159,11 @@ export default class UserController {
             const { name, phone }: UpdateProfileBody = request.body;
             const updatedUser: User | null = await prisma.user.update({ where: { id: user.id }, data: { name, phone } });
             if (!updatedUser) return responseJson(response, 500, 'Internal server error', 'Update profile gagal');
-            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.updateProfile.title, description: dataNotification.user.updateProfile.description, userId: user.id } })
+            const todayUTC: Date = new Date();
+            const currentUTCOffsetInMilliseconds = todayUTC.getTimezoneOffset() * 60 * 1000;
+            const utcPlus7OffsetInMilliseconds = 7 * 60 * 60 * 1000;
+            const todayInUTCPlus7: Date = new Date(todayUTC.getTime() + currentUTCOffsetInMilliseconds + utcPlus7OffsetInMilliseconds);
+            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.updateProfile.title, description: dataNotification.user.updateProfile.description, userId: user.id, createdAt: todayInUTCPlus7 } })
             if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
             return responseJson(response, 200, 'Success', 'Update profile berhasil');
         } catch (error: any) {
@@ -155,7 +183,11 @@ export default class UserController {
             const hashPassword: string = bcrypt.hashSync(passwordBaru, 10);
             const updatedUser: User | null = await prisma.user.update({ where: { id: user.id }, data: { password: hashPassword } });
             if (!updatedUser) return responseJson(response, 500, 'Internal server error', 'Ubah password gagal');
-            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.updatePassword.title, description: dataNotification.user.updatePassword.description, userId: user.id } })
+            const todayUTC: Date = new Date();
+            const currentUTCOffsetInMilliseconds = todayUTC.getTimezoneOffset() * 60 * 1000;
+            const utcPlus7OffsetInMilliseconds = 7 * 60 * 60 * 1000;
+            const todayInUTCPlus7: Date = new Date(todayUTC.getTime() + currentUTCOffsetInMilliseconds + utcPlus7OffsetInMilliseconds);
+            const addNotification: Notification = await prisma.notification.create({ data: { title: dataNotification.user.updatePassword.title, description: dataNotification.user.updatePassword.description, userId: user.id, createdAt: todayInUTCPlus7 } })
             if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
             return responseJson(response, 200, 'Success', 'Update password berhasil');
         } catch (error: any) {
