@@ -37,6 +37,20 @@ app.use('/api/presences', presenceRouter);
 app.use('/api/reports', laporanRouter);
 
 app.get('/', (request: Request, response: Response) => responseJson(response, 200, 'Success', 'API Presence'));
+app.get('/test', (request: Request, response: Response) => {
+    const todayUTC: Date = new Date();
+    const currentUTCOffsetInMilliseconds = todayUTC.getTimezoneOffset() * 60 * 1000;
+    const utcPlus7OffsetInMilliseconds = 7 * 60 * 60 * 1000;
+    const todayInUTCPlus7: Date = new Date(todayUTC.getTime() + currentUTCOffsetInMilliseconds + utcPlus7OffsetInMilliseconds);
+    const startOfDay = new Date(todayInUTCPlus7.getFullYear(), todayInUTCPlus7.getMonth(), todayInUTCPlus7.getDate(), 0, 0, 0, 0)
+    const endOfDay = new Date(todayInUTCPlus7.getFullYear(), todayInUTCPlus7.getMonth(), todayInUTCPlus7.getDate(), 23, 59, 59, 999)
+    return responseJson(response, 200, 'Success', 'Test', {
+        data: {
+            timeZoneOffset: todayUTC.getTimezoneOffset(), todayUTC, currentUTCOffsetInMilliseconds, utcPlus7OffsetInMilliseconds, todayInUTCPlus7, startOfDay, endOfDay
+        }
+    })
+}
+)
 
 app.post('/api/upload', authentication, upload.single('image'), async (request: any, response: Response) => {
     try {

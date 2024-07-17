@@ -96,7 +96,7 @@ export default class PresenceController {
                 }
             });
             if (!createdPresence) return responseJson(response, 500, 'Internal server error', 'Terjadi kersalahan pada server')
-            const addNotification: Notification = await prisma.notification.create({ data: { title: status ? dataNotification.presence.add.masuk.title : dataNotification.presence.add.keluar.title, description: status ? dataNotification.presence.add.masuk.description : dataNotification.presence.add.keluar.description, userId: id } })
+            const addNotification: Notification = await prisma.notification.create({ data: { title: status ? dataNotification.presence.add.masuk.title : dataNotification.presence.add.keluar.title, description: status ? dataNotification.presence.add.masuk.description : dataNotification.presence.add.keluar.description, userId: id, createdAt: todayInUTCPlus7 } })
             if (!addNotification) return responseJson(response, 500, 'Internal server error', 'Terjadi kesalahan pada server')
             return responseJson(response, 200, 'Success', `Presensi ${status} berhasil`);
         } catch (error: any) {
