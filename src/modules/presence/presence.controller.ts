@@ -65,7 +65,7 @@ export default class PresenceController {
 
     async add(request: any, response: Response) {
         try {
-            const { lat, long, imageUrl }: AddBody = request.body;
+            const { lat, long, imageUrl, note }: AddBody = request.body;
             const id: number | undefined = request.user?.id;
             if (!id) return responseJson(response, 400, 'Bad request', 'User tidak ditemukan')
             const todayUTC: Date = new Date();
@@ -93,6 +93,7 @@ export default class PresenceController {
                     status,
                     photo: imageUrl,
                     time: todayInUTCPlus7,
+                    note
                 }
             });
             if (!createdPresence) return responseJson(response, 500, 'Internal server error', 'Terjadi kersalahan pada server')
