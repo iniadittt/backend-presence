@@ -24,4 +24,4 @@ steps:
       - '--set-secrets=DATABASE_URL=database_url:latest,GCP_BUCKET_NAME=gcp_bucket_name:latest,GCP_KEY=gcp_key:latest,JWT_EXPIRESIN=jwt_expiresin:latest,JWT_SECRET=jwt_secret:latest,MAIL_CLIENT_ID=mail_client_id:latest,MAIL_CLIENT_SECRET=mail_client_secret:latest,MAIL_EMAIL=mail_email:latest,MAIL_REDIRECT_URI=mail_redirect_uri:latest,MAIL_REFRESH_TOKEN=mail_refresh_token:latest'
 images:
   - 'asia-southeast2-docker.pkg.dev/$PROJECT_ID/bjir-artifact/presence:$COMMIT_SHA'
-logsBucket: 'gs://bucket-adit-ganteng/logs'
+logsBucket: 'gs://bucket-adit/logs'
